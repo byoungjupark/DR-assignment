@@ -391,4 +391,4 @@ zsdoc/data
 .env
 .DS_Store
 app/secrets.json
-
+app/tests/secrets.json

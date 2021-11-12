@@ -1,6 +1,5 @@
 from typing import List
 from fastapi import Depends, HTTPException, APIRouter
-from pydantic.error_wrappers import ValidationError
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -20,7 +19,7 @@ def create_task(task:schemas.TaskCreate, db:Session=Depends(get_db)):
     db.add(task)
     db.commit()
     db.refresh(task)
-    return task
+    return Response(status_code=200)
 
 
 
@@ -52,7 +51,7 @@ def update_task(task_id:int, update_task:schemas.TaskUpdate, db:Session=Depends(
     db.add(task)
     db.commit()
     db.refresh(task)
-    return task
+    return Response(status_code=200)
 
 
 @router.delete("/")
