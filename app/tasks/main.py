@@ -1,29 +1,45 @@
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import Depends, HTTPException, APIRouter
+from pydantic.error_wrappers import ValidationError
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
+from app.dependencies import get_db
 from . import models, schemas
 
 
-def create_task(db:Session, task:schemas.TaskCreate):
+router = APIRouter(
+    prefix="/task",
+    responses={404:{"description":"Not Found"}}
+)
+
+
+@router.post("/")
+def create_task(task:schemas.TaskCreate, db:Session=Depends(get_db)): 
     task = models.Task(**task.dict())
     db.add(task)
     db.commit()
     db.refresh(task)
     return task
 
-def get_all_tasks(db:Session):
+
+
+@router.get("/", response_model=List[schemas.Task])
+def get_all_tasks(db:Session=Depends(get_db)):
     return db.query(models.Task).all()
 
-def get_task(db:Session, id:int):
-    task = db.query(models.Task).get(id)
+
+@router.get("/{task_id}", response_model=schemas.Task)
+def get_task(task_id:int, db:Session=Depends(get_db)):
+    task = db.query(models.Task).get(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
-def update_task(db:Session, id:int, update_task:schemas.TaskUpdate):
-    task = db.query(models.Task).get(id)
+
+@router.patch("/{task_id}")
+def update_task(task_id:int, update_task:schemas.TaskUpdate, db:Session=Depends(get_db)):
+    task = db.query(models.Task).get(task_id)
 
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -38,15 +54,19 @@ def update_task(db:Session, id:int, update_task:schemas.TaskUpdate):
     db.refresh(task)
     return task
 
-def delete_all_tasks(db:Session):
+
+@router.delete("/")
+def delete_all_tasks(db:Session=Depends(get_db)):
     tasks = db.query(models.Task).all()
     for task in tasks:
         db.delete(task)
         db.commit()
     return Response(status_code=200)
 
-def delete_task(db:Session, id:int):
-    task = db.query(models.Task).get(id)
+
+@router.delete("/{task_id}")
+def delete_task(task_id:int, db:Session=Depends(get_db)):
+    task = db.query(models.Task).get(task_id)
 
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
