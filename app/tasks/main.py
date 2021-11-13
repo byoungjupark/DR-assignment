@@ -16,23 +16,29 @@ router = APIRouter(
 @router.post("/")
 def create_task(task:schemas.TaskCreate, db:Session=Depends(get_db)): 
     task = models.Task(**task.dict())
+    
     db.add(task)
     db.commit()
     db.refresh(task)
+
     return Response(status_code=200)
 
 
-
-@router.get("/", response_model=List[schemas.Task])
+@router.get("/")
 def get_all_tasks(db:Session=Depends(get_db)):
-    return db.query(models.Task).all()
+    tasks     = db.query(models.Task).all()
+    task_list = [{"id":task.id, "name":task.name, "completed":task.completed} for task in tasks]
+
+    return task_list
 
 
 @router.get("/{task_id}", response_model=schemas.Task)
 def get_task(task_id:int, db:Session=Depends(get_db)):
     task = db.query(models.Task).get(task_id)
+
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+
     return task
 
 
@@ -51,15 +57,21 @@ def update_task(task_id:int, update_task:schemas.TaskUpdate, db:Session=Depends(
     db.add(task)
     db.commit()
     db.refresh(task)
+
     return Response(status_code=200)
 
 
 @router.delete("/")
 def delete_all_tasks(db:Session=Depends(get_db)):
     tasks = db.query(models.Task).all()
+
+    if not tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+
     for task in tasks:
         db.delete(task)
         db.commit()
+
     return Response(status_code=200)
 
 
@@ -72,4 +84,5 @@ def delete_task(task_id:int, db:Session=Depends(get_db)):
 
     db.delete(task)
     db.commit()
+
     return Response(status_code=200)

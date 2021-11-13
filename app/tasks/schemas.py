@@ -1,4 +1,3 @@
-from os import stat
 from typing import Optional
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
@@ -13,7 +12,7 @@ class TaskCreate(BaseModel):
         try:
             super(TaskCreate, self).__init__(**data)
         except ValidationError:
-            raise HTTPException(status_code=400, detail="ValidatinError")
+            raise HTTPException(status_code=400, detail="ValidationError")
 
 
 class TaskUpdate(BaseModel):
@@ -24,7 +23,7 @@ class TaskUpdate(BaseModel):
         try:
             super(TaskUpdate, self).__init__(**data)
         except ValidationError:
-            raise HTTPException(status_code=400, detail="ValidatinError")
+            raise HTTPException(status_code=400, detail="ValidationError")
 
 
 class Task(TaskCreate):
