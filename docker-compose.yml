@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - 3306:3306
+    restart: always
+    env_file: .env
+    volumes:
+      - ./DB/conf.d:/etc/mysql/conf.d
+      - ./DB/data:/var/lib/mysql
+      - ./DB/initdb.d:/docker-entrypoint-initdb.d
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000
+    restart: always
+    env_file: .env
+    command:
+      - bash
+      - -c
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
