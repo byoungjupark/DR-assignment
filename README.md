@@ -16,7 +16,8 @@ cd DR-assignment
 ```
 
 #### 환경 구축
-minicodna나 docker 환경을 구축합니다.
+minicodna나 docker 환경을 구축합니다. <br>
+`secrets_sample.json` 파일을 참고하여 app 디렉토리 안에 `secerets.json` 파일을 생성 후 database 환경설정을 진행합니다.
 ```
 ## miniconda 환경
 conda create --name [프로젝트 이름] python=3.9
@@ -28,8 +29,9 @@ pip install -r requirements.txt
 ## docker 환경
 docker-compose up
 ```
+docker 환경에서 진행할 경우, `env_sample` 파일을 참고하여 `.env` 파일에 database 컨테이너 환경설정을 합니다.
 
-`secrets_sample.json` 파일을 참고하여 app 디렉토리 안에 `secerets.json` 파일을 생성 후 database 환경설정을 진행합니다.
+
 #### 서버 실행
 ```
 uvicorn app.main:app --reload
